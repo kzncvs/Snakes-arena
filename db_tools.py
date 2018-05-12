@@ -72,3 +72,13 @@ def fight_init(snake_id):
     db.commit()
     db.close()
     return get_fight_count()
+
+
+def get_fight_info(fight_id):
+    db = sqlite3.connect(db_link)
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM fights WHERE [fight_id] = :count',
+                   {'count': fight_id})
+    heh = cursor.fetchone()
+    db.close()
+    return heh
