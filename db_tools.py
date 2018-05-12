@@ -1,6 +1,5 @@
 import sqlite3
 import json
-from arena import STEPS_LIMIT
 
 db_link = 'C:/Users/s/PycharmProjects/snakes_arena/snake.db'
 
