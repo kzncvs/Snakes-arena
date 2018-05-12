@@ -1,8 +1,8 @@
-STEPS_LIMIT = 30
-
 from flask import *
 import db_tools
 import uuid
+
+STEPS_LIMIT = 30
 
 
 def battle_init():
