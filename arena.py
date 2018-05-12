@@ -9,7 +9,18 @@ def battle_init():
     if db_tools.is_last_fight_waiting():
         battle_id = db_tools.get_fight_count()
         snake_id = uuid.uuid1().int % 10000000
-        db_tools.append_snake(snake_id)
+        snake1_head = [6, 7]
+        snake1_body = [[5, 7], [4, 7], [3, 7]]
+        snake1_tail = [2, 7]
+        snake2_head = [3, 2]
+        snake2_body = [[4, 2], [5, 2], [6, 2]]
+        snake2_tail = [7, 2]
+        is1bited = False
+        is2bited = False
+        steps_left = STEPS_LIMIT
+        db_tools.change_fight_info(snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
+                          snake2_head=snake2_head, snake2_body=snake2_body, snake2_tail=snake2_tail,
+                          is1bited=is1bited, is2bited=is2bited, steps_left=steps_left, snake2_id=snake_id)
         return {'battle_id': battle_id, 'snake_id': snake_id}
     else:
         snake_id = uuid.uuid1().int % 10000000
@@ -46,3 +57,6 @@ def battle_tick(snake_id, battle_id):
                 'battle': {'steps_left': battle_info[3], 'battle_id': battle_id, 'snake_id': snake_id}
             }
         return jsonify(response), 200
+
+
+

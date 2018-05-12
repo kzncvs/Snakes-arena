@@ -29,7 +29,7 @@ def is_last_fight_waiting():
 
 
 def change_fight_info(snake1_head=None, snake1_body=None, snake1_tail=None, snake2_head=None, snake2_body=None,
-                      snake2_tail=None, steps_left=None, is1bited=None, is2bited=None):
+                      snake2_tail=None, steps_left=None, is1bited=None, is2bited=None, snake2_id=None):
     db = sqlite3.connect(db_link)
     cursor = db.cursor()
     if snake1_head is not None:
@@ -59,30 +59,11 @@ def change_fight_info(snake1_head=None, snake1_body=None, snake1_tail=None, snak
     if steps_left is not None:
         cursor.execute('UPDATE [fights] SET [steps_left] = :steps_left WHERE fight_id = :count',
                        {'steps_left': steps_left, 'count': get_fight_count()})
+    if snake2_id is not None:
+        cursor.execute('UPDATE [fights] SET [snake2] = :snake WHERE fight_id = :count',
+                       {'snake': snake2_id, 'count': get_fight_count()})
     db.commit()
     db.close()
-
-
-def append_snake(snake_id):
-    db = sqlite3.connect(db_link)
-    cursor = db.cursor()
-    cursor.execute('UPDATE [fights] SET [snake2] = :snake WHERE fight_id = :count',
-                   {'snake': snake_id, 'count': get_fight_count()})
-    db.commit()
-    db.close()
-    snake1_head = [6, 7]
-    snake1_body = [[5, 7], [4, 7], [3, 7]]
-    snake1_tail = [2, 7]
-    snake2_head = [3, 2]
-    snake2_body = [[4, 2], [5, 2], [6, 2]]
-    snake2_tail = [7, 2]
-    is1bited = False
-    is2bited = False
-    steps_left = STEPS_LIMIT
-    change_fight_info(snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
-                      snake2_head=snake2_head, snake2_body=snake2_body, snake2_tail=snake2_tail,
-                      is1bited=is1bited, is2bited=is2bited, steps_left=steps_left)
-
 
 
 def fight_init(snake_id):
