@@ -28,40 +28,61 @@ def is_last_fight_waiting():
     return is_fight_waiting(get_fight_count())
 
 
+def change_fight_info(snake1_head=None, snake1_body=None, snake1_tail=None, snake2_head=None, snake2_body=None,
+                      snake2_tail=None, steps_left=None, is1bited=None, is2bited=None):
+    db = sqlite3.connect(db_link)
+    cursor = db.cursor()
+    if snake1_head is not None:
+        cursor.execute('UPDATE [fights] SET [snake1_head] = :snake1_head WHERE fight_id = :count',
+                       {'snake1_head': json.dumps(snake1_head), 'count': get_fight_count()})
+    if snake1_body is not None:
+        cursor.execute('UPDATE [fights] SET [snake1_body] = :snake1_body WHERE fight_id = :count',
+                       {'snake1_body': json.dumps(snake1_body), 'count': get_fight_count()})
+    if snake1_tail is not None:
+        cursor.execute('UPDATE [fights] SET [snake1_tail] = :snake1_tail WHERE fight_id = :count',
+                       {'snake1_tail': json.dumps(snake1_tail), 'count': get_fight_count()})
+    if snake2_head is not None:
+        cursor.execute('UPDATE [fights] SET [snake2_head] = :snake2_head WHERE fight_id = :count',
+                       {'snake2_head': json.dumps(snake2_head), 'count': get_fight_count()})
+    if snake2_body is not None:
+        cursor.execute('UPDATE [fights] SET [snake2_body] = :snake2_body WHERE fight_id = :count',
+                       {'snake2_body': json.dumps(snake2_body), 'count': get_fight_count()})
+    if snake2_tail is not None:
+        cursor.execute('UPDATE [fights] SET [snake2_tail] = :snake2_tail WHERE fight_id = :count',
+                       {'snake2_tail': json.dumps(snake2_tail), 'count': get_fight_count()})
+    if is2bited is not None:
+        cursor.execute('UPDATE [fights] SET [snake2_bited] = :isbited WHERE fight_id = :count',
+                       {'count': get_fight_count(), 'isbited': int(is2bited)})
+    if is1bited is not None:
+        cursor.execute('UPDATE [fights] SET [snake1_bited] = :isbited WHERE fight_id = :count',
+                       {'count': get_fight_count(), 'isbited': int(is1bited)})
+    if steps_left is not None:
+        cursor.execute('UPDATE [fights] SET [steps_left] = :steps_left WHERE fight_id = :count',
+                       {'steps_left': steps_left, 'count': get_fight_count()})
+    db.commit()
+    db.close()
+
+
 def append_snake(snake_id):
     db = sqlite3.connect(db_link)
     cursor = db.cursor()
     cursor.execute('UPDATE [fights] SET [snake2] = :snake WHERE fight_id = :count',
                    {'snake': snake_id, 'count': get_fight_count()})
-
+    db.commit()
+    db.close()
     snake1_head = [6, 7]
     snake1_body = [[5, 7], [4, 7], [3, 7]]
     snake1_tail = [2, 7]
-
     snake2_head = [3, 2]
     snake2_body = [[4, 2], [5, 2], [6, 2]]
     snake2_tail = [7, 2]
-    cursor.execute('UPDATE [fights] SET [snake1_head] = :snake1_head WHERE fight_id = :count',
-                   {'snake1_head': json.dumps(snake1_head), 'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [snake1_body] = :snake1_body WHERE fight_id = :count',
-                   {'snake1_body': json.dumps(snake1_body), 'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [snake1_tail] = :snake1_tail WHERE fight_id = :count',
-                   {'snake1_tail': json.dumps(snake1_tail), 'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [snake2_head] = :snake2_head WHERE fight_id = :count',
-                   {'snake2_head': json.dumps(snake2_head), 'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [snake2_body] = :snake2_body WHERE fight_id = :count',
-                   {'snake2_body': json.dumps(snake2_body), 'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [snake2_tail] = :snake2_tail WHERE fight_id = :count',
-                   {'snake2_tail': json.dumps(snake2_tail), 'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [snake2_bited] = 0 WHERE fight_id = :count',
-                   {'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [snake1_bited] = 0 WHERE fight_id = :count',
-                   {'count': get_fight_count()})
-    cursor.execute('UPDATE [fights] SET [steps_left] = :steps_left WHERE fight_id = :count',
-                   {'steps_left': STEPS_LIMIT, 'count': get_fight_count()})
+    is1bited = False
+    is2bited = False
+    steps_left = STEPS_LIMIT
+    change_fight_info(snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
+                      snake2_head=snake2_head, snake2_body=snake2_body, snake2_tail=snake2_tail,
+                      is1bited=is1bited, is2bited=is2bited, steps_left=steps_left)
 
-    db.commit()
-    db.close()
 
 
 def fight_init(snake_id):
