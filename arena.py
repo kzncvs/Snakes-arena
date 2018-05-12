@@ -15,7 +15,7 @@ def battle_init():
         snake2_head = [3, 2]
         snake2_body = [[4, 2], [5, 2], [6, 2]]
         snake2_tail = [7, 2]
-        db_tools.change_fight_info(snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
+        db_tools.change_fight_info(battle_id, snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
                                    snake2_head=snake2_head, snake2_body=snake2_body, snake2_tail=snake2_tail,
                                    is1bited=False, is2bited=False, steps_left=STEPS_LIMIT, snake2_id=snake_id,
                                    snake1_step=False, snake2_step=False)
@@ -29,7 +29,7 @@ def battle_init():
 def battle_tick(snake_id, battle_id):
     if db_tools.is_fight_waiting(battle_id):
         return jsonify({}), 202
-    if db_tools.is_steps_completed(battle_id):
+    if not db_tools.is_steps_completed(battle_id):
         return jsonify({}), 202
     else:
         battle_info = db_tools.get_fight_info(battle_id)
@@ -56,8 +56,26 @@ def battle_tick(snake_id, battle_id):
                 'snakes': {'ally': snake2, 'enemy': snake1},
                 'battle': {'steps_left': battle_info[3], 'battle_id': battle_id, 'snake_id': snake_id}
             }
+        else:
+            return jsonify({}), 400
         return jsonify(response), 200
 
 
 def make_step(snake_id, battle_id, direction):
+    if not db_tools.is_steps_completed(battle_id):
+        return jsonify({}), 400
+    else:
+        battle_info = db_tools.get_fight_info(battle_id)
+        if battle_info[1] == snake_id:
+            db_tools.change_fight_info(battle_id, snake1_step=direction)
+        elif battle_info[2] == snake_id:
+            db_tools.change_fight_info(battle_id, snake2_step=direction)
+        else:
+            return jsonify({}), 400
+        if db_tools.is_steps_completed(battle_id):
+            compute_step()
+        return jsonify({}), 200
+
+
+def compute_step():
     pass

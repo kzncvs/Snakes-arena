@@ -17,11 +17,11 @@ def get_request():
         if request.json['answer'] == '42':
             return jsonify(arena.battle_init()), 201
 
-    # STEP REQUEST TODO
+    # STEP REQUEST
     elif 'step' in request.json and 'snake_id' in request.json and 'battle_id' in request.json:
-        pass
+        return arena.make_step(request.json['snake_id'], request.json['battle_id'], request.json['step'])
 
-    # ЕСТЬ ЧЁ REQUIEST
+    # ЕСТЬ ЧЁ REQUEST
     elif 'snake_id' in request.json and 'battle_id' in request.json:
         return arena.battle_tick(request.json['snake_id'], request.json['battle_id'])
 
