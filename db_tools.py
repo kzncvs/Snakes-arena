@@ -74,7 +74,7 @@ def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=
                        {'snake1_score': snake1_score, 'count': fight_id})
     if snake2_score is not None:
         cursor.execute('UPDATE [fights] SET [snake2_score] = :snake2_score WHERE fight_id = :count',
-                       {'snake1_score': snake2_score, 'count': fight_id})
+                       {'snake2_score': snake2_score, 'count': fight_id})
     if winner is not None:
         cursor.execute('UPDATE [fights] SET [winner] = :winner WHERE fight_id = :count',
                        {'winner': winner, 'count': fight_id})
