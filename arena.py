@@ -18,7 +18,7 @@ def battle_init():
         db_tools.change_fight_info(battle_id, snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
                                    snake2_head=snake2_head, snake2_body=snake2_body, snake2_tail=snake2_tail,
                                    is1bited=False, is2bited=False, steps_left=STEPS_LIMIT, snake2_id=snake_id,
-                                   snake1_step=False, snake2_step=False)
+                                   snake1_step=False, snake2_step=False, snake1_score=0, snake2_score=0, winner=0)
         return {'battle_id': battle_id, 'snake_id': snake_id}
     else:
         snake_id = uuid.uuid1().int % 10000000
@@ -31,6 +31,9 @@ def battle_tick(snake_id, battle_id):
         return jsonify({}), 202
     if db_tools.is_snake_waiting(snake_id, battle_id):
         return jsonify({}), 202
+    end = db_tools.is_battle_ended(snake_id, battle_id)
+    if end:
+        return jsonify(end), 200
     else:
         battle_info = db_tools.get_fight_info(battle_id)
         snake1 = {

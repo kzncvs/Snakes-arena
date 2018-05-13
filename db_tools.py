@@ -29,7 +29,8 @@ def is_last_fight_waiting():
 
 def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=None, snake2_head=None,
                       snake2_body=None, snake2_tail=None, steps_left=None, is1bited=None, is2bited=None,
-                      snake2_id=None, snake1_step=None, snake2_step=None):
+                      snake2_id=None, snake1_step=None, snake2_step=None, snake1_score=None, snake2_score=None,
+                      winner=None):
     db = sqlite3.connect(db_link)
     cursor = db.cursor()
     if snake1_head is not None:
@@ -68,6 +69,15 @@ def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=
     if snake2_step is not None:
         cursor.execute('UPDATE [fights] SET [snake2_step] = :snake WHERE fight_id = :count',
                        {'snake': snake2_step, 'count': fight_id})
+    if snake1_score is not None:
+        cursor.execute('UPDATE [fights] SET [snake1_score] = :snake1_score WHERE fight_id = :count',
+                       {'snake1_score': snake1_score, 'count': fight_id})
+    if snake2_score is not None:
+        cursor.execute('UPDATE [fights] SET [snake2_score] = :snake2_score WHERE fight_id = :count',
+                       {'snake1_score': snake2_score, 'count': fight_id})
+    if winner is not None:
+        cursor.execute('UPDATE [fights] SET [winner] = :winner WHERE fight_id = :count',
+                       {'winner': winner, 'count': fight_id})
     db.commit()
     db.close()
 
@@ -103,3 +113,20 @@ def is_snake_waiting(snake_id, battle_id):
         return heh[12] != 0
     elif heh[2] == snake_id:
         return heh[13] != 0
+
+
+def is_battle_ended(snake_id, battle_id):
+    heh = get_fight_info(battle_id)
+    if heh[16] == 0:
+        return False
+    else:
+        if heh[1] == snake_id:
+            if heh[16] == 1:
+                return {'you': 'win', 'your score': heh[14], 'enemy score': heh[15]}
+            elif heh[16] == 2:
+                return {'you': 'lose', 'your score': heh[14], 'enemy score': heh[15]}
+        elif heh[2] == snake_id:
+            if heh[16] == 1:
+                return {'you': 'lose', 'your score': heh[15], 'enemy score': heh[14]}
+            elif heh[16] == 2:
+                return {'you': 'win', 'your score': heh[15], 'enemy score': heh[14]}
