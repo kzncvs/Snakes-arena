@@ -80,10 +80,10 @@ def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=
                        {'winner': winner, 'count': fight_id})
     if last_tail1 is not None:
         cursor.execute('UPDATE [fights] SET [last_tail1] = :last_tail1 WHERE fight_id = :count',
-                       {'last_tail1': last_tail1, 'count': fight_id})
+                       {'last_tail1': json.dumps(last_tail1), 'count': fight_id})
     if last_tail2 is not None:
         cursor.execute('UPDATE [fights] SET [last_tail2] = :last_tail2 WHERE fight_id = :count',
-                       {'last_tail2': last_tail2, 'count': fight_id})
+                       {'last_tail2': json.dumps(last_tail2), 'count': fight_id})
     db.commit()
     db.close()
 

@@ -93,7 +93,7 @@ def compute_step(battle_id):
             'tail': json.loads(battle_info[6]),
             'is_bited': bool(battle_info[7]),
             'step': battle_info[12],
-            'last_tail': battle_info[17]
+            'last_tail': json.loads(battle_info[17])
         },
         'snake2': {
             'head': json.loads(battle_info[8]),
@@ -101,7 +101,7 @@ def compute_step(battle_id):
             'tail': json.loads(battle_info[10]),
             'is_bited': bool(battle_info[11]),
             'step': battle_info[13],
-            'last_tail': battle_info[18]
+            'last_tail': json.loads(battle_info[18])
         }
     }
 
