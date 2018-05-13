@@ -14,7 +14,7 @@ def get_request():
 
     # INIT REQUEST
     elif 'answer' in request.json:
-        if request.json['answer'] == '42':
+        if str(request.json['answer']) == '42':
             return jsonify(arena.battle_init()), 201
         else:
             abort(400)
