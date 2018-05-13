@@ -222,6 +222,23 @@ def compute_step(battle_id):
             arena_print(battle_id)
             return
 
+    if battle_info[3] == 1:
+        if battle_info[14] > battle_info[15]:
+            db_tools.change_fight_info(fight_id=battle_id, snake1_head=new_head1, snake1_body=new_body1,
+                                       snake1_tail=new_tail1, snake2_head=new_head2, snake2_body=new_body2,
+                                       snake2_tail=new_tail2, steps_left=battle_info[3] - 1, snake1_step=False,
+                                       snake2_step=False, winner=1)
+        elif battle_info[14] < battle_info[15]:
+            db_tools.change_fight_info(fight_id=battle_id, snake1_head=new_head1, snake1_body=new_body1,
+                                       snake1_tail=new_tail1, snake2_head=new_head2, snake2_body=new_body2,
+                                       snake2_tail=new_tail2, steps_left=battle_info[3] - 1, snake1_step=False,
+                                       snake2_step=False, winner=2)
+        else:
+            db_tools.change_fight_info(fight_id=battle_id, snake1_head=new_head1, snake1_body=new_body1,
+                                       snake1_tail=new_tail1, snake2_head=new_head2, snake2_body=new_body2,
+                                       snake2_tail=new_tail2, steps_left=battle_info[3] - 1, snake1_step=False,
+                                       snake2_step=False, winner=-1)
+
     db_tools.change_fight_info(fight_id=battle_id, snake1_head=new_head1, snake1_body=new_body1,
                                snake1_tail=new_tail1, snake2_head=new_head2, snake2_body=new_body2,
                                snake2_tail=new_tail2, steps_left=battle_info[3] - 1, snake1_step=False,
