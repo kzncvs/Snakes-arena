@@ -30,7 +30,7 @@ def is_last_fight_waiting():
 def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=None, snake2_head=None,
                       snake2_body=None, snake2_tail=None, steps_left=None, is1bited=None, is2bited=None,
                       snake2_id=None, snake1_step=None, snake2_step=None, snake1_score=None, snake2_score=None,
-                      winner=None):
+                      winner=None, last_tail1=None, last_tail2=None):
     db = sqlite3.connect(db_link)
     cursor = db.cursor()
     if snake1_head is not None:
@@ -78,6 +78,12 @@ def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=
     if winner is not None:
         cursor.execute('UPDATE [fights] SET [winner] = :winner WHERE fight_id = :count',
                        {'winner': winner, 'count': fight_id})
+    if last_tail1 is not None:
+        cursor.execute('UPDATE [fights] SET [last_tail1] = :last_tail1 WHERE fight_id = :count',
+                       {'last_tail1': last_tail1, 'count': fight_id})
+    if last_tail2 is not None:
+        cursor.execute('UPDATE [fights] SET [last_tail2] = :last_tail2 WHERE fight_id = :count',
+                       {'last_tail2': last_tail2, 'count': fight_id})
     db.commit()
     db.close()
 
@@ -113,6 +119,14 @@ def is_snake_waiting(snake_id, battle_id):
         return heh[12] != 0
     elif heh[2] == snake_id:
         return heh[13] != 0
+
+
+def is_snake_passing(snake_id, battle_id):
+    heh = get_fight_info(battle_id)
+    if heh[1] == snake_id:
+        return heh[12] == 'pass'
+    elif heh[2] == snake_id:
+        return heh[13] == 'pass'
 
 
 def is_battle_ended(snake_id, battle_id):

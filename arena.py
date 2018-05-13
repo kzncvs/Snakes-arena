@@ -12,13 +12,16 @@ def battle_init():
         snake1_head = [6, 7]
         snake1_body = [[5, 7], [4, 7], [3, 7]]
         snake1_tail = [2, 7]
+        snake1_last_tail = [1, 7]
         snake2_head = [3, 2]
         snake2_body = [[4, 2], [5, 2], [6, 2]]
         snake2_tail = [7, 2]
+        snake2_last_tail = [8, 2]
         db_tools.change_fight_info(battle_id, snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
                                    snake2_head=snake2_head, snake2_body=snake2_body, snake2_tail=snake2_tail,
                                    is1bited=False, is2bited=False, steps_left=STEPS_LIMIT, snake2_id=snake_id,
-                                   snake1_step=False, snake2_step=False, snake1_score=0, snake2_score=0, winner=0)
+                                   snake1_step=False, snake2_step=False, snake1_score=0, snake2_score=0, winner=0,
+                                   last_tail1=snake1_last_tail, last_tail2=snake2_last_tail)
         return {'battle_id': battle_id, 'snake_id': snake_id}
     else:
         snake_id = uuid.uuid1().int % 10000000
@@ -27,45 +30,43 @@ def battle_init():
 
 
 def battle_tick(snake_id, battle_id):
-    if db_tools.is_fight_waiting(battle_id):
-        return jsonify({}), 202
-    if db_tools.is_snake_waiting(snake_id, battle_id):
+    if db_tools.is_fight_waiting(battle_id) or db_tools.is_snake_waiting(snake_id, battle_id):
         return jsonify({}), 202
     end = db_tools.is_battle_ended(snake_id, battle_id)
     if end:
         return jsonify(end), 200
+
+    battle_info = db_tools.get_fight_info(battle_id)
+    snake1 = {
+        'head': json.loads(battle_info[4]),
+        'body': json.loads(battle_info[5]),
+        'tail': json.loads(battle_info[6]),
+        'is_bited': bool(battle_info[7])
+    }
+    snake2 = {
+        'head': json.loads(battle_info[8]),
+        'body': json.loads(battle_info[9]),
+        'tail': json.loads(battle_info[10]),
+        'is_bited': bool(battle_info[11])
+    }
+    response = {}
+    if battle_info[1] == snake_id:
+        response = {
+            'snakes': {'ally': snake1, 'enemy': snake2},
+            'battle': {'steps_left': battle_info[3], 'battle_id': battle_id, 'snake_id': snake_id}
+        }
+    elif battle_info[2] == snake_id:
+        response = {
+            'snakes': {'ally': snake2, 'enemy': snake1},
+            'battle': {'steps_left': battle_info[3], 'battle_id': battle_id, 'snake_id': snake_id}
+        }
     else:
-        battle_info = db_tools.get_fight_info(battle_id)
-        snake1 = {
-            'head': json.loads(battle_info[4]),
-            'body': json.loads(battle_info[5]),
-            'tail': json.loads(battle_info[6]),
-            'is_bited': bool(battle_info[7])
-        }
-        snake2 = {
-            'head': json.loads(battle_info[8]),
-            'body': json.loads(battle_info[9]),
-            'tail': json.loads(battle_info[10]),
-            'is_bited': bool(battle_info[11])
-        }
-        response = {}
-        if battle_info[1] == snake_id:
-            response = {
-                'snakes': {'ally': snake1, 'enemy': snake2},
-                'battle': {'steps_left': battle_info[3], 'battle_id': battle_id, 'snake_id': snake_id}
-            }
-        elif battle_info[2] == snake_id:
-            response = {
-                'snakes': {'ally': snake2, 'enemy': snake1},
-                'battle': {'steps_left': battle_info[3], 'battle_id': battle_id, 'snake_id': snake_id}
-            }
-        else:
-            return jsonify({}), 400
-        return jsonify(response), 200
+        return jsonify({}), 400
+    return jsonify(response), 200
 
 
 def make_step(snake_id, battle_id, direction):
-    if db_tools.is_steps_made(battle_id):
+    if db_tools.is_steps_made(battle_id) or db_tools.is_snake_passing(snake_id, battle_id):
         return jsonify({}), 400
     end = db_tools.is_battle_ended(snake_id, battle_id)
     if end:
@@ -91,14 +92,16 @@ def compute_step(battle_id):
             'body': json.loads(battle_info[5]),
             'tail': json.loads(battle_info[6]),
             'is_bited': bool(battle_info[7]),
-            'step': battle_info[12]
+            'step': battle_info[12],
+            'last_tail': battle_info[17]
         },
         'snake2': {
             'head': json.loads(battle_info[8]),
             'body': json.loads(battle_info[9]),
             'tail': json.loads(battle_info[10]),
             'is_bited': bool(battle_info[11]),
-            'step': battle_info[13]
+            'step': battle_info[13],
+            'last_tail': battle_info[18]
         }
     }
 
@@ -108,7 +111,8 @@ def compute_step(battle_id):
     if current_snakes['snake1']['step'] == 'pass':
         new_head1 = current_snakes['snake1']['head']
         new_body1 = current_snakes['snake1']['body']
-        new_tail1 = current_snakes['snake1']['tail']
+        new_body1.append(current_snakes['snake1']['tail'])
+        new_tail1 = current_snakes['snake1']['last_tail']
     else:
         if current_snakes['snake1']['step'] == 'up':
             new_head1 = [current_snakes['snake1']['head'][0], current_snakes['snake1']['head'][1] + 1]
@@ -129,7 +133,9 @@ def compute_step(battle_id):
     if current_snakes['snake2']['step'] == 'pass':
         new_head2 = current_snakes['snake2']['head']
         new_body2 = current_snakes['snake2']['body']
-        new_tail2 = current_snakes['snake2']['tail']
+        new_body2.append(current_snakes['snake2']['tail'])
+        new_tail2 = current_snakes['snake2']['last_tail']
+
     else:
         if current_snakes['snake2']['step'] == 'up':
             new_head2 = [current_snakes['snake2']['head'][0], current_snakes['snake2']['head'][1] + 1]
@@ -168,3 +174,5 @@ def compute_step(battle_id):
                                    snake2_step=False, winner=1)
         return
 
+    if new_head1 == new_tail2:
+        pass
