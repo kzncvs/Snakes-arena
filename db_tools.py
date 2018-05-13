@@ -92,6 +92,14 @@ def get_fight_info(fight_id):
     return heh
 
 
-def is_steps_completed(fight_id):
+def is_steps_made(fight_id):
     heh = get_fight_info(fight_id)
     return heh[12] != 0 and heh[13] != 0
+
+
+def is_snake_waiting(snake_id, battle_id):
+    heh = get_fight_info(battle_id)
+    if heh[1] == snake_id:
+        return heh[12] != 0
+    elif heh[2] == snake_id:
+        return heh[13] != 0

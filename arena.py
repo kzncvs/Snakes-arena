@@ -29,8 +29,8 @@ def battle_init():
 def battle_tick(snake_id, battle_id):
     if db_tools.is_fight_waiting(battle_id):
         return jsonify({}), 202
-    # if not db_tools.is_steps_completed(battle_id):
-    #     return jsonify({}), 202
+    if db_tools.is_snake_waiting(snake_id, battle_id):
+        return jsonify({}), 202
     else:
         battle_info = db_tools.get_fight_info(battle_id)
         snake1 = {
@@ -62,7 +62,7 @@ def battle_tick(snake_id, battle_id):
 
 
 def make_step(snake_id, battle_id, direction):
-    if db_tools.is_steps_completed(battle_id):
+    if db_tools.is_steps_made(battle_id):
         return jsonify({}), 400
     else:
         battle_info = db_tools.get_fight_info(battle_id)
@@ -72,7 +72,7 @@ def make_step(snake_id, battle_id, direction):
             db_tools.change_fight_info(battle_id, snake2_step=direction)
         else:
             return jsonify({}), 400
-        if db_tools.is_steps_completed(battle_id):
+        if db_tools.is_steps_made(battle_id):
             compute_step()
         return jsonify({}), 200
 
