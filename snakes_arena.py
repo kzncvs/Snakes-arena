@@ -16,6 +16,8 @@ def get_request():
     elif 'answer' in request.json:
         if request.json['answer'] == '42':
             return jsonify(arena.battle_init()), 201
+        else:
+            abort(400)
 
     # STEP REQUEST
     elif 'step' in request.json and 'snake_id' in request.json and 'battle_id' in request.json:
