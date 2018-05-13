@@ -119,6 +119,8 @@ def is_battle_ended(snake_id, battle_id):
     heh = get_fight_info(battle_id)
     if heh[16] == 0:
         return False
+    elif heh[16] == -1:
+        return {'you': 'draw', 'your score': heh[14], 'enemy score': heh[15]}
     else:
         if heh[1] == snake_id:
             if heh[16] == 1:
