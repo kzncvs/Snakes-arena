@@ -253,19 +253,21 @@ def arena_print(battle_id):
     try:
         strings[snakes['snake1']['head'][1]] = strings[snakes['snake1']['head'][1]][
                                                :9 - snakes['snake1']['head'][0]] + '1' + strings[
-                                                                                             snakes['snake1']['head'][1]][
+                                                                                             snakes['snake1']['head'][
+                                                                                                 1]][
                                                                                          9 - snakes['snake1']['head'][
                                                                                              0] + 1:]
     except:
-            pass
+        pass
     try:
         strings[snakes['snake2']['head'][1]] = strings[snakes['snake2']['head'][1]][
                                                :9 - snakes['snake2']['head'][0]] + '2' + strings[
-                                                                                             snakes['snake2']['head'][1]][
+                                                                                             snakes['snake2']['head'][
+                                                                                                 1]][
                                                                                          9 - snakes['snake2']['head'][
                                                                                              0] + 1:]
     except:
-            pass
+        pass
     for segment in snakes['snake1']['body']:
         strings[segment[1]] = strings[segment[1]][:9 - segment[0]] + '+' + strings[segment[1]][9 - segment[0] + 1:]
     for segment in snakes['snake2']['body']:
