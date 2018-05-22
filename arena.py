@@ -1,3 +1,5 @@
+import random
+
 from flask import *
 import db_tools
 import uuid
@@ -100,7 +102,7 @@ def compute_step(battle_id):
             'is_bited': bool(battle_info[7]),
             'step': battle_info[12],
             'last_tail': json.loads(battle_info[17]),
-            'last_last_tail': json.loads(battle_info[29])
+            'last_last_tail': json.loads(battle_info[19])
         },
         'snake2': {
             'head': json.loads(battle_info[8]),
@@ -123,12 +125,7 @@ def compute_step(battle_id):
     new_tail1 = []
     new_last1 = []
     if current_snakes['snake1']['step'] == 'pass':
-        new_head1 = current_snakes['snake1']['head']
-        new_body1 = current_snakes['snake1']['body']
-        new_body1.append(current_snakes['snake1']['tail'])
-        new_tail1 = current_snakes['snake1']['last_tail']
-        new_last1 = current_snakes['snake1']['last_last_tail']
-
+        pass
     else:
         if current_snakes['snake1']['step'] == 'up':
             new_head1 = [current_snakes['snake1']['head'][0], current_snakes['snake1']['head'][1] + 1]
@@ -144,19 +141,16 @@ def compute_step(battle_id):
         new_tail1 = new_body1.pop()
         new_last1 = current_snakes['snake1']['last_last_tail']
         if current_snakes['snake1']['is_bited']:
+            new_last1 = new_tail1
             new_tail1 = new_body1.pop()
+
 
     new_head2 = []
     new_body2 = []
     new_tail2 = []
     new_last2 = []
     if current_snakes['snake2']['step'] == 'pass':
-        new_head2 = current_snakes['snake2']['head']
-        new_body2 = current_snakes['snake2']['body']
-        new_body2.append(current_snakes['snake2']['tail'])
-        new_tail2 = current_snakes['snake2']['last_tail']
-        new_last2 = current_snakes['snake2']['last_last_tail']
-
+        pass
     else:
         if current_snakes['snake2']['step'] == 'up':
             new_head2 = [current_snakes['snake2']['head'][0], current_snakes['snake2']['head'][1] + 1]
@@ -172,7 +166,60 @@ def compute_step(battle_id):
         new_tail2 = new_body2.pop()
         new_last2 = current_snakes['snake2']['last_last_tail']
         if current_snakes['snake2']['is_bited']:
+            new_last2 = new_tail2
             new_tail2 = new_body2.pop()
+
+    if current_snakes['snake1']['step'] == 'pass':
+        new_head1 = current_snakes['snake1']['head']
+        new_body1 = current_snakes['snake1']['body']
+        new_body1.append(current_snakes['snake1']['tail'])
+        dangers = []
+        dangers.extend(new_head1)
+        dangers.extend(new_body1)
+        dangers.extend(new_tail1)
+        dangers.extend(new_head2)
+        dangers.extend(new_body2)
+        dangers.extend(new_tail2)
+        places_around_body = [[new_body1[len(new_body1) - 1][0] + 1, new_body1[len(new_body1) - 1][1]],
+                              [new_body1[len(new_body1) - 1][0] - 1, new_body1[len(new_body1) - 1][1]],
+                              [new_body1[len(new_body1) - 1][0], new_body1[len(new_body1) - 1][1] + 1],
+                              [new_body1[len(new_body1) - 1][0], new_body1[len(new_body1) - 1][1] - 1]]
+        safety_places = []
+        for place in places_around_body:
+            if dangers.count(place) == 0:
+                safety_places.append(place)
+        if len(safety_places) == 0:
+            new_tail1 = new_body1.pop()
+        else:
+            new_tail1 = random.choice(safety_places)
+
+    if current_snakes['snake2']['step'] == 'pass':
+        new_head2 = current_snakes['snake2']['head']
+        new_body2 = current_snakes['snake2']['body']
+        new_body2.append(current_snakes['snake2']['tail'])
+        dangers = []
+        dangers.extend(new_head1)
+        dangers.extend(new_body1)
+        dangers.extend(new_tail1)
+        dangers.extend(new_head2)
+        dangers.extend(new_body2)
+        dangers.extend(new_tail2)
+        places_around_body = [[new_body1[len(new_body1) - 1][0] + 1, new_body1[len(new_body1) - 1][1]],
+                              [new_body1[len(new_body1) - 1][0] - 1, new_body1[len(new_body1) - 1][1]],
+                              [new_body1[len(new_body1) - 1][0], new_body1[len(new_body1) - 1][1] + 1],
+                              [new_body1[len(new_body1) - 1][0], new_body1[len(new_body1) - 1][1] - 1]]
+        safety_places = []
+        for place in places_around_body:
+            if dangers.count(place) == 0:
+                safety_places.append(place)
+        if len(safety_places) == 0:
+            new_tail2 = new_body2.pop()
+        else:
+            new_tail2 = random.choice(safety_places)
+
+
+
+
 
     is_snake1_died = new_head1[0] > 9 or new_head1[0] < 0 or new_head1[1] > 9 or new_head1[
         1] < 0 or new_head1 in new_body1 or new_head1 in new_body2 or new_head1 == new_head2 or new_head1 == new_tail1
