@@ -9,19 +9,24 @@ def battle_init():
     if db_tools.is_last_fight_waiting():
         battle_id = db_tools.get_fight_count()
         snake_id = uuid.uuid1().int % 10000000
+
         snake1_head = [6, 7]
         snake1_body = [[5, 7], [4, 7], [3, 7]]
         snake1_tail = [2, 7]
         snake1_last_tail = [1, 7]
+        snake1_last_last = [0, 7]
         snake2_head = [3, 2]
         snake2_body = [[4, 2], [5, 2], [6, 2]]
         snake2_tail = [7, 2]
         snake2_last_tail = [8, 2]
+        snake2_last_last = [9, 2]
+
         db_tools.change_fight_info(battle_id, snake1_head=snake1_head, snake1_body=snake1_body, snake1_tail=snake1_tail,
                                    snake2_head=snake2_head, snake2_body=snake2_body, snake2_tail=snake2_tail,
                                    is1bited=False, is2bited=False, steps_left=STEPS_LIMIT, snake2_id=snake_id,
                                    snake1_step=False, snake2_step=False, snake1_score=0, snake2_score=0, winner=0,
-                                   last_tail1=snake1_last_tail, last_tail2=snake2_last_tail)
+                                   last_tail1=snake1_last_tail, last_tail2=snake2_last_tail,
+                                   snake1_last_last=snake1_last_last, snake2_last_last=snake2_last_last)
         arena_print(battle_id)
         return {'battle_id': battle_id, 'snake_id': snake_id}
     else:
@@ -94,7 +99,8 @@ def compute_step(battle_id):
             'tail': json.loads(battle_info[6]),
             'is_bited': bool(battle_info[7]),
             'step': battle_info[12],
-            'last_tail': json.loads(battle_info[17])
+            'last_tail': json.loads(battle_info[17]),
+            'last_last_tail': json.loads(battle_info[29])
         },
         'snake2': {
             'head': json.loads(battle_info[8]),
@@ -102,18 +108,27 @@ def compute_step(battle_id):
             'tail': json.loads(battle_info[10]),
             'is_bited': bool(battle_info[11]),
             'step': battle_info[13],
-            'last_tail': json.loads(battle_info[18])
+            'last_tail': json.loads(battle_info[18]),
+            'last_last_tail': json.loads(battle_info[20])
         }
     }
+
+    if current_snakes['snake1']['is_bited']:
+        db_tools.change_fight_info(battle_id, is1bited=False)
+    if current_snakes['snake2']['is_bited']:
+        db_tools.change_fight_info(battle_id, is2bited=False)
 
     new_head1 = []
     new_body1 = []
     new_tail1 = []
+    new_last1 = []
     if current_snakes['snake1']['step'] == 'pass':
         new_head1 = current_snakes['snake1']['head']
         new_body1 = current_snakes['snake1']['body']
         new_body1.append(current_snakes['snake1']['tail'])
         new_tail1 = current_snakes['snake1']['last_tail']
+        new_last1 = current_snakes['snake1']['last_last_tail']
+
     else:
         if current_snakes['snake1']['step'] == 'up':
             new_head1 = [current_snakes['snake1']['head'][0], current_snakes['snake1']['head'][1] + 1]
@@ -127,17 +142,20 @@ def compute_step(battle_id):
         new_body1 = [current_snakes['snake1']['head']]
         new_body1.extend(current_snakes['snake1']['body'])
         new_tail1 = new_body1.pop()
+        new_last1 = current_snakes['snake1']['last_last_tail']
         if current_snakes['snake1']['is_bited']:
             new_tail1 = new_body1.pop()
 
     new_head2 = []
     new_body2 = []
     new_tail2 = []
+    new_last2 = []
     if current_snakes['snake2']['step'] == 'pass':
         new_head2 = current_snakes['snake2']['head']
         new_body2 = current_snakes['snake2']['body']
         new_body2.append(current_snakes['snake2']['tail'])
         new_tail2 = current_snakes['snake2']['last_tail']
+        new_last2 = current_snakes['snake2']['last_last_tail']
 
     else:
         if current_snakes['snake2']['step'] == 'up':
@@ -152,6 +170,7 @@ def compute_step(battle_id):
         new_body2 = [current_snakes['snake2']['head']]
         new_body2.extend(current_snakes['snake2']['body'])
         new_tail2 = new_body2.pop()
+        new_last2 = current_snakes['snake2']['last_last_tail']
         if current_snakes['snake2']['is_bited']:
             new_tail2 = new_body2.pop()
 
@@ -196,7 +215,7 @@ def compute_step(battle_id):
             db_tools.change_fight_info(fight_id=battle_id, snake1_head=new_head1, snake1_body=new_body1,
                                        snake1_tail=new_tail1, snake2_head=new_head2, snake2_body=new_body2,
                                        snake2_tail=new_tail2, steps_left=battle_info[3] - 1, snake1_step='pass',
-                                       snake2_step=False, is1bited=None, is2bited=True,
+                                       snake2_step=False, is1bited=False, is2bited=True,
                                        snake1_score=battle_info[14] + 1, last_tail1=current_snakes['snake1']['tail'],
                                        last_tail2=current_snakes['snake2']['tail'])
             arena_print(battle_id)
@@ -216,7 +235,7 @@ def compute_step(battle_id):
             db_tools.change_fight_info(fight_id=battle_id, snake1_head=new_head1, snake1_body=new_body1,
                                        snake1_tail=new_tail1, snake2_head=new_head2, snake2_body=new_body2,
                                        snake2_tail=new_tail2, steps_left=battle_info[3] - 1, snake1_step=False,
-                                       snake2_step='pass', is2bited=None, is1bited=True,
+                                       snake2_step='pass', is2bited=False, is1bited=True,
                                        snake2_score=battle_info[15] + 1, last_tail1=current_snakes['snake1']['tail'],
                                        last_tail2=current_snakes['snake2']['tail'])
             arena_print(battle_id)
@@ -242,8 +261,9 @@ def compute_step(battle_id):
     db_tools.change_fight_info(fight_id=battle_id, snake1_head=new_head1, snake1_body=new_body1,
                                snake1_tail=new_tail1, snake2_head=new_head2, snake2_body=new_body2,
                                snake2_tail=new_tail2, steps_left=battle_info[3] - 1, snake1_step=False,
-                               snake2_step=False, last_tail1=current_snakes['snake1']['tail'],
-                               last_tail2=current_snakes['snake2']['tail'])
+                               snake2_step=False, last_tail1=new_last1,
+                               snake1_last_last=current_snakes['snake1']['last_tail'],
+                               last_tail2=new_last2, snake2_last_last=current_snakes['snake2']['last_tail'])
     arena_print(battle_id)
     return
 

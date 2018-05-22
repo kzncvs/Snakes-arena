@@ -1,7 +1,7 @@
 import sqlite3
 import json
 
-db_link = 'C:/Users/s/PycharmProjects/snakes_arena/snake.db'
+db_link = '/snake/snake.db'
 
 
 def get_fight_count():
@@ -30,7 +30,7 @@ def is_last_fight_waiting():
 def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=None, snake2_head=None,
                       snake2_body=None, snake2_tail=None, steps_left=None, is1bited=None, is2bited=None,
                       snake2_id=None, snake1_step=None, snake2_step=None, snake1_score=None, snake2_score=None,
-                      winner=None, last_tail1=None, last_tail2=None):
+                      winner=None, last_tail1=None, last_tail2=None, snake1_last_last=None, snake2_last_last=None):
     db = sqlite3.connect(db_link)
     cursor = db.cursor()
     if snake1_head is not None:
@@ -84,6 +84,12 @@ def change_fight_info(fight_id, snake1_head=None, snake1_body=None, snake1_tail=
     if last_tail2 is not None:
         cursor.execute('UPDATE [fights] SET [last_tail2] = :last_tail2 WHERE fight_id = :count',
                        {'last_tail2': json.dumps(last_tail2), 'count': fight_id})
+    if snake1_last_last is not None:
+        cursor.execute('UPDATE [fights] SET [snake1_last_last] = :snake1_last_last WHERE fight_id = :count',
+                       {'snake1_last_last': json.dumps(snake1_last_last), 'count': fight_id})
+    if snake2_last_last is not None:
+        cursor.execute('UPDATE [fights] SET [snake2_last_last] = :snake2_last_last WHERE fight_id = :count',
+                       {'snake2_last_last': json.dumps(snake2_last_last), 'count': fight_id})
     db.commit()
     db.close()
 
