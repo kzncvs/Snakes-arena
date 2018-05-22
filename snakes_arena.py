@@ -33,4 +33,4 @@ def get_request():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host= '80.211.132.97', port='8888')
