@@ -283,7 +283,7 @@ def arena_print(battle_id):
         }
     }
     print('..........')
-    print('battle ' + str(battle_id) + ' // step ' + str(battle_info[14]))
+    print('battle ' + str(battle_id) + ' // step ' + str(battle_info[3]))
     print('snake1 ' + str(battle_info[14]) + ' // snake2 ' + str(battle_info[15]))
     string_layout = ".........."
     strings = [string_layout for _ in range(10)]
@@ -308,18 +308,18 @@ def arena_print(battle_id):
     for segment in snakes['snake1']['body']:
         strings[segment[1]] = strings[segment[1]][:9 - segment[0]] + '+' + strings[segment[1]][9 - segment[0] + 1:]
     for segment in snakes['snake2']['body']:
-        strings[segment[1]] = strings[segment[1]][:9 - segment[0]] + '+' + strings[segment[1]][9 - segment[0] + 1:]
+        strings[segment[1]] = strings[segment[1]][:9 - segment[0]] + '-' + strings[segment[1]][9 - segment[0] + 1:]
     strings[snakes['snake1']['tail'][1]] = strings[snakes['snake1']['tail'][1]][
-                                           :9 - snakes['snake1']['tail'][0]] + '*' + strings[
+                                           :9 - snakes['snake1']['tail'][0]] + '!' + strings[
                                                                                          snakes['snake1']['tail'][1]][
                                                                                      9 - snakes['snake1']['tail'][
                                                                                          0] + 1:]
     strings[snakes['snake2']['tail'][1]] = strings[snakes['snake2']['tail'][1]][
-                                           :9 - snakes['snake2']['tail'][0]] + '*' + strings[
+                                           :9 - snakes['snake2']['tail'][0]] + '@' + strings[
                                                                                          snakes['snake2']['tail'][1]][
                                                                                      9 - snakes['snake2']['tail'][
                                                                                          0] + 1:]
-    print('  0123456789')
-    for i in range(10):
-        print(9 - i, strings[i], 9 - i)
-    print('  0123456789')
+    print('y 0123456789')
+    for i in reversed(range(10)):
+        print(i, strings[i][::-1], i)
+    print('  0123456789 >x')
